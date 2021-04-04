@@ -6,7 +6,6 @@ from discord.ext import commands as discord_commands
 from twitchio.ext import commands as commands
 ## Packages on this machine.
 import config
-from utils import remove_markdown
 
 class Twitch(discord_commands.Cog):
     def __init__(self, bot):
@@ -63,7 +62,7 @@ class Twitch(discord_commands.Cog):
                         if not channel:
                             await self.bot.join_channels([name])
                             channel = self.bot.get_channel(name)
-                        await channel.send(f"Now playing: {remove_markdown(song_name)}")
+                        await channel.send(f"Now playing: {discord.utils.remove_markdown(song_name)}")
                         print(f"{Style.BRIGHT}{Fore.LIGHTMAGENTA_EX}[NOW-PLAYING] {Fore.YELLOW}{song_name} {Fore.WHITE} in {Fore.YELLOW}{message.author.voice.channel.name} {Fore.WHITE}using {Fore.YELLOW}{message.author.name}{Fore.WHITE} -> {Fore.YELLOW}{name}{Fore.WHITE}!{Style.RESET_ALL}")
 
 def setup(discord_bot):
