@@ -20,7 +20,7 @@ class Miscellaneous(commands.Cog):
 
         embed = Embed(
             title = "🔗 Support Server Invite Link",
-            url = "TODO support server invite",
+            url = "https://discord.gg/DeDNDYhtwb",
             color = maincolor
         )
         await ctx.send(embed = embed)

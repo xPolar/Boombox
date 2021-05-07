@@ -20,7 +20,7 @@ class Miscellaneous(commands.Cog):
         # Line count stuff below.
         self.comments = self.coroutines = self.functions = self.classes = self.lines = self.files = 0
         try:
-            for file in Path("./"):
+            for file in Path("./").rglob("**/*.py"):
                 if str(file).startswith("venv"):
                     continue
                 self.files += 1
@@ -29,7 +29,7 @@ class Miscellaneous(commands.Cog):
                         line = line.strip()
                         self.classes += 1 if line.startswith("class") else 0
                         self.functions += 1 if line.startswith("def") else 0
-                        self.coroutines += 1 if line.starswith("async def") else 0
+                        self.coroutines += 1 if line.startswith("async def") else 0
                         self.comments += 1 if "#" in line else 0
                         self.lines += 1
         except Exception:

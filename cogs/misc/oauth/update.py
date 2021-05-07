@@ -1,6 +1,6 @@
 # Packages.
 ## Packages default to Python.
-import datetime, requests
+import datetime
 from bson.int64 import Int64
 ## Packages that have to be installed through the package manager.
 import requests_async as requests, discord, aiohttp
@@ -24,7 +24,7 @@ class UpdateOauth(commands.Cog):
     
     @tasks.loop(seconds = 30)
     async def update_oauth(self) -> None:
-        """Update all users who are going to have their oauth invalidate within the next mintue."""
+        """Update all users who are going to have their oauth invalidate within the next minute."""
 
         async for document in cluster.users.oauth.aggregate([{"$match": {"expires_in": {"$lte": int(datetime.datetime.utcnow().timestamp()) + 60}}}]):
 

@@ -1,14 +1,16 @@
 # Packages
 ## Packages that are default to Python.
-import datetime, traceback
 from asyncio import sleep
+from datetime import datetime
+from traceback import format_exception
 ## Packages that need to be installed through PyPi.
-import aiohttp, discord
+from discord import AsyncWebhookAdapter, Embed, Game, Intents, Status, Webhook
+from aiohttp import ClientSession
 from colorama import Fore, Style, init
-from discord.ext import commands
+from discord.ext.commands import AutoShardedBot, BadArgument, BadUnionArgument, BotMissingPermissions, CheckFailure, CommandNotFound, TooManyArguments, when_mentioned_or
 ## Packages on this machine.
-import config
-from utils import get_prefix as gp, get_commands
+from config import ownerids, prefix, shard_webhook, token, join_webhook
+from utils import get_commands, get_prefix as gp
 
 # Initialize colorama
 init()
@@ -23,18 +25,18 @@ async def get_prefix(bot, message):
     Returns:
         str: The prefix the bot will accept.
     """
-    return commands.when_mentioned_or(await gp(message))(bot, message)
+    return when_mentioned_or(await gp(message))(bot, message)
 
-intents = discord.Intents.default()
+intents = Intents.default()
 intents.members = True
-bot = commands.AutoShardedBot(activity = discord.Game(f"with {config.prefix}help"), command_prefix = get_prefix, case_insensitive = True, intents = intents, status = discord.Status.online)
+bot = AutoShardedBot(activity = Game(f"with {prefix}help"), command_prefix = get_prefix, case_insensitive = True, intents = intents, status = Status.online)
 
 # bot.remove_command("help")
 bot.load_extension("jishaku")
 
 try:
     get_commands(bot, ".\cogs")
-except:
+except Exception:
     get_commands(bot, "./cogs")
 
 async def owner(ctx):
@@ -47,7 +49,7 @@ async def owner(ctx):
         bool: Wether the user is one of the bot's owners.
     """
 
-    return ctx.author.id in config.ownerids
+    return ctx.author.id in ownerids
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -58,16 +60,16 @@ async def on_command_error(ctx, error):
         error (Exception): The exception that was raised.
     """
 
-    if isinstance(error, (commands.CommandNotFound, commands.BadArgument, commands.CheckFailure, commands.BadUnionArgument, commands.BotMissingPermissions, commands.TooManyArguments)):
+    if isinstance(error, (CommandNotFound, BadArgument, CheckFailure, BadUnionArgument, BotMissingPermissions, TooManyArguments)):
         return
     else:
         try:
             error_type = type(error)
             error_trace = error.__traceback__
-            error_list = traceback.format_exception(error_type, error, error_trace)
+            error_list = format_exception(error_type, error, error_trace)
             error_text = "".join(error_list)
 
-            await ctx.send(f"```\n{error_text}\n```".replace(config.token, "[R E D A C T E D"))
+            await ctx.send(f"```\n{error_text}\n```".replace(token, "[R E D A C T E D"))
         finally:
             raise error
 
@@ -75,9 +77,9 @@ async def on_command_error(ctx, error):
 async def on_guild_join(guild):
     """When the bot joins a server send a webhook with detailed information as well as print out some basic information."""
 
-    embed = discord.Embed(
+    embed = Embed(
         title = "Joined a server!",
-        timestamp = datetime.datetime.utcnow(),
+        timestamp = datetime.utcnow(),
         color = 0x77DD77
     )
     embed.add_field(name = "Server Name", value = guild.name)
@@ -88,8 +90,8 @@ async def on_guild_join(guild):
     owner = bot.get_user(guild.owner_id)
     if owner:
         embed.add_field(name = "Server Owner", value = f"{owner}")
-    async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(config.webhook, adapter = discord.AsyncWebhookAdapter(session))
+    async with ClientSession() as session:
+        webhook = Webhook.from_url(join_webhook, adapter = AsyncWebhookAdapter(session))
         await webhook.send(embed = embed, username = "Joined a server")
     print(f"{Style.BRIGHT}{Fore.LIGHTGREEN_EX}[JOINED-SERVER]{Fore.WHITE} Joined {Fore.YELLOW}{guild.name}{Fore.WHITE} with {Fore.YELLOW}{len(guild.members) - 1}{Fore.WHITE} members.")
 
@@ -97,9 +99,9 @@ async def on_guild_join(guild):
 async def on_guild_remove(guild):
     """When the bot leaves a server send a webhook with detailed information as well as print out some basic information."""
 
-    embed = discord.Embed(
+    embed = Embed(
         title = "Left a server!",
-        timestamp = datetime.datetime.utcnow(),
+        timestamp = datetime.utcnow(),
         color = 0xFF6961
     )
     embed.add_field(name = "Server Name", value = guild.name)
@@ -110,8 +112,8 @@ async def on_guild_remove(guild):
     owner = bot.get_user(guild.owner_id)
     if owner:
         embed.add_field(name = "Server Owner", value = f"{owner}")
-    async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(config.webhook, adapter = discord.AsyncWebhookAdapter(session))
+    async with ClientSession() as session:
+        webhook = Webhook.from_url(join_webhook, adapter = AsyncWebhookAdapter(session))
         await webhook.send(embed = embed, username = "Left a server")
     print(f"{Style.BRIGHT}{Fore.LIGHTRED_EX}[LEFT-SERVER]{Fore.WHITE} Left {Fore.YELLOW}{guild.name}{Fore.WHITE} with {Fore.YELLOW}{len(guild.members)}{Fore.WHITE} members.")
 
@@ -133,12 +135,12 @@ async def on_shard_connect(shard_id):
         shard_id (int): The ID of the shard that has connected. (Starts from 0).
     """
 
-    embed = discord.Embed(
+    embed = Embed(
         color = 0x43B581
     )
     embed.set_author(name = f"Shard #{shard_id} has connected!", icon_url = "https://cdn.discordapp.com/emojis/736694890536370317.png?v=1")
-    async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(config.shard_webhook, adapter = discord.AsyncWebhookAdapter(session))
+    async with ClientSession() as session:
+        webhook = Webhook.from_url(shard_webhook, adapter = AsyncWebhookAdapter(session))
         await webhook.send(embed = embed, username = "Shard Connected")
     print(f"{Style.BRIGHT}{Fore.LIGHTBLUE_EX}[SHARD-CONNECTED]{Fore.WHITE} Shard {Fore.YELLOW}{shard_id}{Fore.WHITE} has connected!")
 
@@ -150,12 +152,12 @@ async def on_shard_disconnect(shard_id):
         shard_id (int): The ID of the shard that has disconnected. (Starts from 0).
     """
 
-    embed = discord.Embed(
+    embed = Embed(
         color = 0xF04747
     )
     embed.set_author(name = f"Shard #{shard_id} has disconnected!", icon_url = "https://cdn.discordapp.com/emojis/736694890007625750.png?v=1")
-    async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(config.shard_webhook, adapter = discord.AsyncWebhookAdapter(session))
+    async with ClientSession() as session:
+        webhook = Webhook.from_url(shard_webhook, adapter = AsyncWebhookAdapter(session))
         await webhook.send(embed = embed, username = "Shard Disconnected")
     print(f"{Style.BRIGHT}{Fore.RED}[SHARD-DISCONNECTED]{Fore.WHITE} Shard {Fore.YELLOW}{shard_id}{Fore.WHITE} has disconnected!")
 
@@ -167,12 +169,12 @@ async def on_shard_resume(shard_id):
         shard_id (int): The ID of the shard that has resumed. (Starts from 0).
     """
 
-    embed = discord.Embed(
+    embed = Embed(
         color = 0x43B581
     )
     embed.set_author(name = f"Shard #{shard_id} has resumed!", icon_url = "https://cdn.discordapp.com/emojis/736694890536370317.png?v=1")
-    async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(config.shard_webhook, adapter = discord.AsyncWebhookAdapter(session))
+    async with ClientSession() as session:
+        webhook = Webhook.from_url(shard_webhook, adapter = AsyncWebhookAdapter(session))
         await webhook.send(embed = embed, username = "Shard Resumed")
     print(f"{Style.BRIGHT}{Fore.LIGHTBLUE_EX}[SHARD-RESUMED]{Fore.WHITE} Shard {Fore.YELLOW}{shard_id}{Fore.WHITE} has resumed!")
 
@@ -182,8 +184,8 @@ async def on_ready():
     
     print(f"{Style.BRIGHT}{Fore.LIGHTBLUE_EX}[BOT-STARTED]{Fore.WHITE} I'm currently in {len(bot.guilds)} servers with {len(bot.users)} users!")
     while True:
-        await bot.change_presence(status = discord.Status.online, activity = discord.Game(f"with {config.prefix}help | {len(bot.users)} Users"))
+        await bot.change_presence(status = Status.online, activity = Game(f"with {prefix}help | {len(bot.users)} Users"))
         await sleep(1800)
 
 # Start the bot.
-bot.run(config.token)
+bot.run(token)

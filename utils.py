@@ -1,17 +1,16 @@
 # Packages.
 ## Packages default to Python.
-import os, re
-from bson.int64 import Int64
+from os import scandir
 ## Packages that have to be installed through the package manager.
-import discord
+from discord import Message
 from colorama import Fore, Style
 from discord.ext import commands
 ## Packages on this machine.
-import config
+from config import cluster, prefix
 
 __version__ = "v1.0.0"
 
-async def get_prefix(message : discord.Message) -> str:
+async def get_prefix(message : Message) -> str:
     """Get the prefix for a server.
 
     Args:
@@ -22,20 +21,22 @@ async def get_prefix(message : discord.Message) -> str:
     """
 
     if message.guild:
-        document = await config.cluster.servers.prefixes.find_one({"_id": Int64(message.guild.id)})
-        if document:
-            return document["prefix"]
-    return config.prefix
+        prefix_document = await cluster.servers.prefixes.find_one({"_id": message.guild.id})
+        if prefix_document:
+            return prefix_document["prefix"]
+    return prefix
 
 def get_commands(bot : commands.AutoShardedBot, directory : str) -> None:
     """Load all commands in a directory.
 
     Args:
         bot (commands.AutoShardedBot): Our bot.
-        dir (str): The directory to load commands from.
+        directory (str): The directory to load commands from.
     """
 
-    for entry in os.scandir(directory):
+    # For every file / sub-directory in the provided directory continue
+    # if it's cache otherwise attempt to load extension or use recursion.
+    for entry in scandir(directory):
         if entry.name == "__pycache__":
             continue
         if entry.is_dir() and entry.name:

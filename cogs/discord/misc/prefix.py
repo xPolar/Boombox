@@ -12,7 +12,7 @@ class Miscellaneous(commands.Cog):
 
     def __init__(self, bot : commands.AutoShardedBot) -> None:
         self.bot = bot
-    
+
     @commands.Cog.listener()
     async def on_message(self, message : Message) -> None:
         """Whenever a message is sent check if it's content equals the bot's mention, if so respond with the prefix.
@@ -27,7 +27,7 @@ class Miscellaneous(commands.Cog):
                 color = maincolor
             )
             await message.channel.send(embed = embed)
-    
+
     @commands.command()
     async def prefix(self, ctx : commands.Context, new_prefix : str = None) -> None:
         """View or set the prefix for the bot.
@@ -36,7 +36,7 @@ class Miscellaneous(commands.Cog):
             ctx (commands.Context): Discord's context object.
             new_prefix (str): The prefix we want to set or `remove` to set the prefix.
         """
-        
+
         if not new_prefix:
             embed = Embed(
                 title = f"👋 Hey there, my name is {self.bot.user.name} and my prefix here is **`{await get_prefix(ctx.message)}`**!",
@@ -53,7 +53,7 @@ class Miscellaneous(commands.Cog):
                 embed = Embed(
                     title = "Prefix Removed",
                     description = "I have removed the prefix for this server!",
-                    color = maincolor 
+                    color = maincolor
                 )
                 await cluster.servers.prefixes.delete_one({"_id": ctx.guild.id})
             else:
