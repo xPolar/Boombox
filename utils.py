@@ -21,8 +21,7 @@ async def get_prefix(message : Message) -> str:
     """
 
     if message.guild:
-        prefix_document = await cluster.servers.prefixes.find_one({"_id": message.guild.id})
-        if prefix_document:
+        if prefix_document := await cluster.servers.prefixes.find_one({"_id": message.guild.id}):
             return prefix_document["prefix"]
     return prefix
 

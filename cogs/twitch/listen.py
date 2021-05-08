@@ -5,7 +5,7 @@ from colorama import Fore, Style
 from discord.ext import commands as discord_commands
 from twitchio.ext import commands as commands
 ## Packages on this machine.
-from config import twitch_client_id, cluster, irc_token, twitch_prefix, nick, supported_bots, sync_cluster
+from config import cluster, irc_token, nick, supported_bots, sync_cluster, twitch_client_id, twitch_prefix
 
 class Twitch(discord_commands.Cog):
 

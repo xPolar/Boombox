@@ -7,7 +7,7 @@ import requests_async as requests, discord, aiohttp
 from colorama import Fore, Style
 from discord.ext import commands, tasks
 ## Packages on this machine.
-from config import cluster, client_id, client_secret, base_url, auth_webhook
+from config import auth_webhook, base_url, client_id, client_secret, cluster, redirect_url
 
 class UpdateOauth(commands.Cog):
 
@@ -33,7 +33,7 @@ class UpdateOauth(commands.Cog):
                 "client_secret": client_secret,
                 "grant_type": "refresh_token",
                 "refresh_token": document["refresh_token"],
-                "redirect_uri": "http://127.0.0.1:5000/callback/",
+                "redirect_uri": f"{redirect_url}/callback/",
                 "scope": "identify connections"
             }
             

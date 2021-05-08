@@ -42,36 +42,35 @@ class Authorization(commands.Cog):
                 description = "Please provide a twitch channel to connect to!",
                 color = errorcolor
             )
+        elif not bot.bot or bot.id not in supported_bots:
+            embed = Embed(
+                title = "Empty Argument",
+                description = "Please provide a valid music bot that we support! Find a list of supported music bots [**here**](TODO gitbook to supported music bots).",
+                color = errorcolor
+            )
         else:
-            if not bot.bot or bot.id not in supported_bots:
+            document = await cluster.users.oauth.find_one({"_id": ctx.author.id})
+            if not document:
                 embed = Embed(
-                    title = "Empty Argument",
-                    description = "Please provide a valid music bot that we support! Find a list of supported music bots [**here**](TODO gitbook to supported music bots).",
+                    title = "Not Authorized",
+                    description = "Please authorize with Boombox by clicking [**here**](https://discord.com/api/oauth2/authorize?client_id=825880443273478164&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Flogin%2F&response_type=code&scope=connections%20identify)",
                     color = errorcolor
                 )
             else:
-                document = await cluster.users.oauth.find_one({"_id": ctx.author.id})
-                if not document:
+                twitch = twitch.split("/")[-1]
+                if twitch not in [channel["name"] for channel in document["connections"] if channel["type"] == "twitch"] and twitch not in [channel["id"] for channel in document["connections"] if channel["type"] == "twitch"]:
                     embed = Embed(
-                        title = "Not Authorized",
-                        description = "Please authorize with Boombox by clicking [**here**](https://discord.com/api/oauth2/authorize?client_id=825880443273478164&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Flogin%2F&response_type=code&scope=connections%20identify)",
+                        title = "Not Connected",
+                        description = f"If you are the owner of {twitch} please connect it to your Discord account! If you need help with this please feel free to join our [**support server**](https://discord.gg/DeDNDYhtwb)!",
                         color = errorcolor
                     )
                 else:
-                    twitch = twitch.split("/")[-1]
-                    if twitch not in [channel["name"] for channel in document["connections"] if channel["type"] == "twitch"] and twitch not in [channel["id"] for channel in document["connections"] if channel["type"] == "twitch"]:
-                        embed = Embed(
-                            title = "Not Connected",
-                            description = f"If you are the owner of {twitch} please connect it to your Discord account! If you need help with this please feel free to join our [**support server**](https://discord.gg/DeDNDYhtwb)!",
-                            color = errorcolor
-                        )
-                    else:
-                        embed = Embed(
-                            title = "Bot Connected",
-                            description = f"Whenever **{bot.mention}** plays a new song in **{channel}** I will now post a message into **{twitch}**!",
-                            color = maincolor
-                        )
-                        await cluster.connected.documents.update_one({"channel": Int64(channel.id), "bot": Int64(bot.id)}, {"$addToSet": {"twitch": twitch}}, upsert = True)
+                    embed = Embed(
+                        title = "Bot Connected",
+                        description = f"Whenever **{bot.mention}** plays a new song in **{channel}** I will now post a message into **{twitch}**!",
+                        color = maincolor
+                    )
+                    await cluster.connected.documents.update_one({"channel": Int64(channel.id), "bot": Int64(bot.id)}, {"$addToSet": {"twitch": twitch}}, upsert = True)
         await ctx.send(embed = embed)
 
 def setup(bot):

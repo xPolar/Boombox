@@ -8,7 +8,7 @@ from requests import get, post
 ## Packages that have to be installed through the package manager.
 from flask import Flask, abort, request
 ## Packages on this machine.
-from config import auth_webhook, base_url, client_id, client_secret, sync_cluster
+from config import auth_webhook, base_url, client_id, client_secret, redirect_url, sync_cluster
 
 app = Flask(__name__)
 
@@ -30,7 +30,7 @@ def login() -> str:
         "client_secret": client_secret,
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": "http://127.0.0.1:5000/login/",
+        "redirect_uri": f"{redirect_url}/login/",
         "scope": "identify connections"
     }
 

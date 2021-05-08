@@ -5,7 +5,7 @@ from bson.int64 import Int64
 from discord import Embed, Message
 from discord.ext import commands
 ## Packages on this machine.
-from config import cluster, maincolor, errorcolor
+from config import cluster, errorcolor, maincolor
 from utils import get_prefix
 
 class Miscellaneous(commands.Cog):

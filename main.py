@@ -6,10 +6,10 @@ from traceback import format_exception
 ## Packages that need to be installed through PyPi.
 from discord import AsyncWebhookAdapter, Embed, Game, Intents, Status, Webhook
 from aiohttp import ClientSession
-from colorama import Fore, Style, init
+from colorama import Fore, init, Style
 from discord.ext.commands import AutoShardedBot, BadArgument, BadUnionArgument, BotMissingPermissions, CheckFailure, CommandNotFound, TooManyArguments, when_mentioned_or
 ## Packages on this machine.
-from config import ownerids, prefix, shard_webhook, token, join_webhook
+from config import join_webhook, ownerids, prefix, shard_webhook, token
 from utils import get_commands, get_prefix as gp
 
 # Initialize colorama
@@ -46,7 +46,7 @@ async def owner(ctx):
         ctx (discord.py's context object): Context object.
 
     Returns:
-        bool: Wether the user is one of the bot's owners.
+        bool: Whether the user is one of the bot's owners.
     """
 
     return ctx.author.id in ownerids
@@ -83,7 +83,7 @@ async def on_guild_join(guild):
         color = 0x77DD77
     )
     embed.add_field(name = "Server Name", value = guild.name)
-    embed.add_field(name = "Server Members", value = len(guild.members) - 1)
+    embed.add_field(name = "Server Members", value = str(len(guild.members) - 1))
     embed.add_field(name = "Server ID", value = guild.id)
     embed.add_field(name = "Server Owner ID", value = guild.owner.id)
     embed.set_footer(text = f"I am now in {len(bot.guilds)} servers", icon_url = guild.icon_url)
@@ -105,7 +105,7 @@ async def on_guild_remove(guild):
         color = 0xFF6961
     )
     embed.add_field(name = "Server Name", value = guild.name)
-    embed.add_field(name = "Server Members", value = len(guild.members))
+    embed.add_field(name = "Server Members", value = str(len(guild.members)))
     embed.add_field(name = "Server ID", value = guild.id)
     embed.add_field(name = "Server Owner ID", value = guild.owner_id)
     embed.set_footer(text = f"I am now in {len(bot.guilds)} servers", icon_url = guild.icon_url)
