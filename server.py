@@ -2,10 +2,10 @@
 ## Packages default to Python.
 from bson.int64 import Int64
 from datetime import datetime
-from discord import Embed, Webhook
-from discord.webhook import RequestsWebhookAdapter
 from requests import get, post
 ## Packages that have to be installed through the package manager.
+from discord import Embed, Webhook
+from discord.webhook import RequestsWebhookAdapter
 from flask import Flask, abort, request
 ## Packages on this machine.
 from config import auth_webhook, base_url, client_id, client_secret, redirect_url, sync_cluster
